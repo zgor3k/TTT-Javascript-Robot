@@ -16,6 +16,7 @@ var Game = function (player, computer) {
     this.computer = computer;
 
     var losNumber = Math.floor((Math.random() * 2));
+    var losNumber = Math.floor((Math.random() * 2));
     if (losNumber == 0) {
         currentPlayer = player;
     } else {
@@ -53,7 +54,7 @@ var Game = function (player, computer) {
     };
 
     self.playerMove = function (position) {
-        if (grid.isPositionAvaiable(position) && !self.checkWin()) {
+        if (grid.isPositionAvaiable(position) && winnerPlayer == null) {
             grid.setPosition(position, currentPlayer.getSymbol());
             self.switchPlayer();
         }
