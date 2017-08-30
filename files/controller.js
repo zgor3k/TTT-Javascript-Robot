@@ -7,12 +7,17 @@ var setImage = function (position, symbol) {
 };
 
 var disabledFields = function () {
-    $(".gridding").unbind("click", playerMove);
+    //    $(".gridding").off("click");
+    //    $(".gridding").unbind("click", playerMove);
+    document.querySelector(".gridding").addEventListener("click", playerMove, false);
     $(".gridding").css("cursor", "auto");
 };
 
 var enabledFields = function () {
-    $(".gridding").on("click", playerMove);
+    //    $(".gridding").bind("click", playerMove);
+    document.querySelector(".gridding").addEventListener("click", playerMove, true);
+
+    //    $(".gridding").addEventListener("click", playerMove);
     $(".gridding").css("cursor", "pointer");
 };
 
@@ -51,29 +56,26 @@ var setCurrentPlayerImg = function () {
 
 var playerMove = function (field) {
     if (!(field >= 0 && field < 10)) {
-        var field = $(this).attr("id").slice(5);
+        field = $(this).attr("id").slice(5);
     }
-    game.playerMove(field);
-    drawGrid();
 
-    if (game.checkWin() == true) {
-        disabledFields();
+    game.playerMove(field);
+    disabledFields();
+    drawGrid();
+    console.log("moves: " + game.getMoveCounter());
+    if (game.checkWin()) {
         setPoints();
-        setTimeout(function () {
-            alert("The winner is: " + game.getWinnerPlayer().getName());
-        }, 10);
+        alert("The winner is: " + game.getWinnerPlayer().getName());
         $("#next").show();
     } else if (game.getMoveCounter() == 9) {
-        disabledFields();
-        setTimeout(function () {
-            alert("DRAW GAME");
-        }, 10);
+        alert("DRAW GAME");
         $("#next").show();
-    } else if (!game.checkWin() && game.getMoveCounter() < 9) {
+    } else {
         if (game.getCurrentPlayer().getName() == "COMPUTER") {
             computerMove(field);
         }
         setCurrentPlayerImg();
+        enabledFields();
     }
 };
 
@@ -104,6 +106,18 @@ var computerMove = function (field) {
     var firstComputerMoves = [2, 0, 6, 2, 8];
 
     var secondComputerMoves = {
+        0: [1, 3],
+        1: [0, 2],
+        2: [1, 5],
+        3: [0, 6],
+        4: [2, 6, 0, 8],
+        5: [2, 8],
+        6: [3, 7],
+        7: [6, 8],
+        8: [5, 7]
+    }
+
+    var thirdComputerMoves = {
         0: [1, 3, 2, 6, 8],
         1: [0, 2, 3, 5, 7],
         2: [1, 5, 0, 8, 6],
@@ -118,90 +132,76 @@ var computerMove = function (field) {
     var nextField = 0;
 
     if (game.getCurrentPlayer().getName() == game.getComputer().getName()) {
+
+        // check lines
+        var inLine = false;
+        var whatLine = [];
+        var counter = 0;
+
+        // human lines
+        for (var i = 0; i < lines.length; i++) {
+            counter = 0;
+            for (var e = 0; e < lines[i].length; e++) {
+                if (game.getGrid().getSymbol(lines[i][e]) == game.getPlayer1().getSymbol()) {
+                    counter++;
+                } else if (game.getGrid().getSymbol(lines[i][e]) == game.getComputer().getSymbol()) {
+                    counter -= 1;
+                }
+            }
+            if (counter > 1) {
+                inLine = true;
+                whatLine.push(i);
+            }
+        }
+
+        // computer lines
+        var inLineComp = false;
+        var whatLineComp = [];
+        counter = 0;
+
+        for (var i = 0; i < lines.length; i++) {
+            counter = 0;
+            for (var e = 0; e < lines[i].length; e++) {
+                if (game.getGrid().getSymbol(lines[i][e]) == game.getComputer().getSymbol()) {
+                    counter++;
+                } else if (game.getGrid().getSymbol(lines[i][e]) == game.getPlayer1().getSymbol()) {
+                    counter -= 1;
+                }
+            }
+            if (counter > 1) {
+                inLineComp = true;
+                whatLineComp.push(i);
+            }
+        }
+
+        // move
         if (playerMoves.length == 0) {
             nextField = firstComputerMoves[Math.floor((Math.random() * firstComputerMoves.length))];
-        } else if (playerMoves.length == 1) {
+        } else if (inLineComp == true) {
+            for (var i = 0; i < whatLineComp.length; i++) {
+                //                console.log("comp: " + lines[whatLineComp[i]]);
+                nextField = lines[whatLineComp[i]][Math.floor((Math.random() * lines[whatLineComp[i]].length))];
+                while (game.getGrid().isPositionAvaiable(nextField) == false) {
+                    nextField = lines[whatLineComp[i]][Math.floor((Math.random() * lines[whatLineComp[i]].length))];
+                }
+            }
+        } else if (inLine == true) {
+            for (var i = 0; i < whatLine.length; i++) {
+                //                console.log("human: " + lines[whatLine[i]]);
+                nextField = lines[whatLine[i]][Math.floor((Math.random() * lines[whatLine[i]].length))];
+                while (game.getGrid().isPositionAvaiable(nextField) == false) {
+                    nextField = lines[whatLine[i]][Math.floor((Math.random() * lines[whatLine[i]].length))];
+                }
+            }
+        } else if (!inLineComp && !inLine && playerMoves.length > 0 && playerMoves.length < 3) {
             nextField = 4;
             while (game.getGrid().isPositionAvaiable(nextField) == false) {
                 nextField = secondComputerMoves[playerLastMove][Math.floor((Math.random() * secondComputerMoves[playerLastMove].length))];
             }
-        } else if (playerMoves.length > 0) {
-            var inLine = false;
-            var whatLine = [];
-            var counter = 0;
-
-            // human lines
-            for (var i = 0; i < lines.length; i++) {
-                counter = 0;
-                for (var e = 0; e < lines[i].length; e++) {
-                    if (game.getGrid().getSymbol(lines[i][e]) == game.getPlayer1().getSymbol()) {
-                        counter++;
-                    } else if (game.getGrid().getSymbol(lines[i][e]) == game.getComputer().getSymbol()) {
-                        counter -= 1;
-                    }
-                }
-                if (counter > 1) {
-                    inLine = true;
-                    whatLine.push(i);
-                }
+        } else if (!inLineComp && !inLine && playerMoves.length > 2) {
+            while (game.getGrid().isPositionAvaiable(nextField) == false) {
+                nextField = thirdComputerMoves[playerLastMove][Math.floor((Math.random() * thirdComputerMoves[playerLastMove].length))];
             }
-
-            // computer lines
-            var inLineComp = false;
-            var whatLineComp = [];
-            counter = 0;
-
-            for (var i = 0; i < lines.length; i++) {
-                counter = 0;
-                for (var e = 0; e < lines[i].length; e++) {
-                    if (game.getGrid().getSymbol(lines[i][e]) == game.getComputer().getSymbol()) {
-                        counter++;
-                    } else if (game.getGrid().getSymbol(lines[i][e]) == game.getPlayer1().getSymbol()) {
-                        counter -= 1;
-                    }
-                }
-                if (counter > 1) {
-                    inLineComp = true;
-                    whatLineComp.push(i);
-                }
-            }
-
-            if (inLineComp == true) {
-                try {
-                    for (var i = 0; i < whatLineComp.length; i++) {
-                        nextField = lines[whatLineComp[i]][Math.floor((Math.random() * lines[whatLineComp[i]].length))];
-                        while (game.getGrid().isPositionAvaiable(nextField) == false) {
-                            nextField = lines[whatLineComp[i]][Math.floor((Math.random() * lines[whatLineComp[i]].length))];
-                        }
-                    }
-                } catch (e) {
-                    while (game.getGrid().isPositionAvaiable(nextField) == false) {
-                        nextField = secondComputerMoves[playerLastMove][Math.floor((Math.random() * secondComputerMoves[playerLastMove].length))];
-                    }
-                }
-
-            } else {
-                if (inLine == true) {
-                    try {
-                        for (var i = 0; i < whatLine.length; i++) {
-                            nextField = lines[whatLine[i]][Math.floor((Math.random() * lines[whatLine[i]].length))];
-                            while (game.getGrid().isPositionAvaiable(nextField) == false) {
-                                nextField = lines[whatLine[i]][Math.floor((Math.random() * lines[whatLine[i]].length))];
-                            }
-                        }
-                    } catch (e) {
-                        while (game.getGrid().isPositionAvaiable(nextField) == false) {
-                            nextField = secondComputerMoves[playerLastMove][Math.floor((Math.random() * secondComputerMoves[playerLastMove].length))];
-                        }
-                    }
-                } else {
-                    while (game.getGrid().isPositionAvaiable(nextField) == false) {
-                        nextField = secondComputerMoves[playerLastMove][Math.floor((Math.random() * secondComputerMoves[playerLastMove].length))];
-                    }
-                }
-
-            }
-
         }
         self.playerMove(nextField);
         drawGrid();
