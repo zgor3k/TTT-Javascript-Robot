@@ -7,17 +7,12 @@ var setImage = function (position, symbol) {
 };
 
 var disabledFields = function () {
-    //    $(".gridding").off("click");
-    //    $(".gridding").unbind("click", playerMove);
     document.querySelector(".gridding").addEventListener("click", playerMove, false);
     $(".gridding").css("cursor", "auto");
 };
 
 var enabledFields = function () {
-    //    $(".gridding").bind("click", playerMove);
     document.querySelector(".gridding").addEventListener("click", playerMove, true);
-
-    //    $(".gridding").addEventListener("click", playerMove);
     $(".gridding").css("cursor", "pointer");
 };
 
@@ -179,7 +174,6 @@ var computerMove = function (field) {
             nextField = firstComputerMoves[Math.floor((Math.random() * firstComputerMoves.length))];
         } else if (inLineComp == true) {
             for (var i = 0; i < whatLineComp.length; i++) {
-                //                console.log("comp: " + lines[whatLineComp[i]]);
                 nextField = lines[whatLineComp[i]][Math.floor((Math.random() * lines[whatLineComp[i]].length))];
                 while (game.getGrid().isPositionAvaiable(nextField) == false) {
                     nextField = lines[whatLineComp[i]][Math.floor((Math.random() * lines[whatLineComp[i]].length))];
@@ -187,7 +181,6 @@ var computerMove = function (field) {
             }
         } else if (inLine == true) {
             for (var i = 0; i < whatLine.length; i++) {
-                //                console.log("human: " + lines[whatLine[i]]);
                 nextField = lines[whatLine[i]][Math.floor((Math.random() * lines[whatLine[i]].length))];
                 while (game.getGrid().isPositionAvaiable(nextField) == false) {
                     nextField = lines[whatLine[i]][Math.floor((Math.random() * lines[whatLine[i]].length))];
