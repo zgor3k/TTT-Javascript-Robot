@@ -75,7 +75,6 @@ var playerMove = function (field) {
 
 var computerMove = function (field) {
 
-    console.log("field 1: " + field);
     var playerMoves = [];
     for (var i = 0; i < fieldTabs.length; i++) {
         if (game.getGrid().getSymbol(i) == game.getPlayer1().getSymbol()) {
@@ -87,7 +86,6 @@ var computerMove = function (field) {
     if (field >= 0) {
         playerLastMove = field;
     }
-    console.log("field 2: " + field);
 
     var lines = [];
     lines.push([0, 1, 2]); // 1
