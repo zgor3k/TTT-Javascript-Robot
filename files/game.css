@@ -40,7 +40,7 @@
 		    width: 75%;
 		}
 		
-		.footer {
+		.top {
 		    width: 100%;
 		    border-bottom: 1px solid lightgrey;
 		    color: #404040;
@@ -48,7 +48,7 @@
 		    display: flex;
 		}
 		
-		.footer div {
+		.top div {
 		    width: 20%;
 		    display: block;
 		}
@@ -61,7 +61,7 @@
 		    padding: 0px;
 		}
 		
-		.footer .buttons {
+		.top .buttons {
 		    display: flex;
 		}
 		
